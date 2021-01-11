@@ -1,0 +1,2337 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "xman WhatsApp Service",
+    "description": "\nDo like WhatsApp things.\nRuns on top of Baileys\n\nAuthentication is via a JWT bearer access-token. You can obtain this access token from the authentication service via your refresh token.\n\nExample curl request to obtain:\n\n`curl -X POST \"https://api-auth.xman.tech/oauth/token\" -H  \"accept: application/json\" -H  \"Content-Type: application/x-www-form-urlencoded\" -d \"grant_type=user_refresh_token&refresh_token=[enter-refresh-token-here]`\n",
+    "version": "0.3.0"
+  },
+  "servers": [
+    {
+      "url": "https://api-wa.xman.tech/"
+    },
+    {
+      "url": "http://api-wa.xman.tech/"
+    },
+    {
+      "url": "http://localhost:5000/"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Gets the current state of the WA Web connection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/state"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/open": {
+      "get": {
+        "summary": "Opens a connection to WhatsApp Web, if `canLogin` is set to true, it will login otherwise it will send the QR code on the live channel",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/state"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/close": {
+      "get": {
+        "summary": "Closes the user's connection to WhatsApp Web, will pause all pending messages & broadcasts of the user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/logout": {
+      "get": {
+        "summary": "Logs out of the user's WA account, will pause all pending messages & broadcasts of the user & invalidate the user's stored credentials",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/live": {
+      "get": {
+        "summary": "Live event stream for the API (SSE)",
+        "description": "These events are named the same & send the same data as the events listed [here](https://github.com/adiwajshing/Baileys#handling-events)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ]
+      }
+    },
+    "/contacts": {
+      "get": {
+        "summary": "Returns a list of all the user's contacts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/user/exists/{phone}": {
+      "get": {
+        "summary": "Checks if the given phone number is on WA",
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The phone number exists on WA"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "The phone number does not exist on WA"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/user/status/{jid}": {
+      "get": {
+        "summary": "Gets the given user's status",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/user/status": {
+      "patch": {
+        "summary": "Updates the current user's status",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "The new status",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/user/subscribe/{jid}": {
+      "post": {
+        "summary": "Subscribes to a another user's presence updates, so you receive events on the /live channel when they're typing, online etc.",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The WA ID of the user to subscribe to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/user/picture/{jid}": {
+      "get": {
+        "summary": "Gets the profile picture of a given person/group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The WA ID of the user to subscribe to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirected",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update a group chat or user's picture (photo can be max 10MB)",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "ID of the chat to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "picture"
+                ],
+                "properties": {
+                  "picture": {
+                    "type": "string",
+                    "description": "New picture for the jid",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats": {
+      "get": {
+        "summary": "Retreives a user's chats in a cursor-paginated manner",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "description": "number of chats to retreive",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "cursor for pagination",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "searchString",
+            "in": "query",
+            "description": "Set this to search for specific users",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Set this to get archived/unarchived chats",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "unread",
+            "in": "query",
+            "description": "Set this to get read/unread chats",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "description": "Set this to get group/individual chats",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Set this to get group/individual chats",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "assignedToMe",
+            "in": "query",
+            "description": "Only show chats assigned to me",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/chats-response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}": {
+      "get": {
+        "summary": "Retreives a chat",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat to retreive",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/chat-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          },
+          "404": {
+            "description": "Chat not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{jid}": {
+      "patch": {
+        "summary": "Update/modify a chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "ID of the chat to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modification",
+            "in": "query",
+            "description": "the modification, can be one of: archive/unarchive/mute/unmute/pin/unpin/delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "durationMs",
+            "in": "query",
+            "description": "Optionally set this for mute duration",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/chat-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "ID of the chat to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK, deleted"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{jid}/read": {
+      "post": {
+        "summary": "Mark a chat read/unread",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "description": "Set to \"true\" to read, \"false\" to un-read",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{jid}/typing": {
+      "post": {
+        "summary": "Tell the given chat ID that you're typing",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/message-flows": {
+      "get": {
+        "summary": "Get the message flows of the user's team",
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Number of flows to load",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Flows to load after the given ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Optional search string",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/message-flow-options"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a new message flow.",
+        "description": "To make a template, simply add the parameter between two curly braces. For example, in `Oh hello {recipient}!`, `recpient` is the parameter.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-flow-create-options"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-flow-options"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/message-flows/{id}": {
+      "get": {
+        "summary": "Get the specified message flow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "message flow ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-flow-options"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Edit the specified message flow",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "message flow ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-flow-edit-options"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-flow-options"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/search/{jid}": {
+      "get": {
+        "summary": "Search through WA messages",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose messages to load (actually optional, will search through entire chat DB)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Number of messages to load",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (plain number, starts with 1)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/messages-response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}": {
+      "get": {
+        "summary": "Get the messages of a given chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose messages to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Number of messages to load",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "Cursor to load messages before given message",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/messages-response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Send a new message",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose messages to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/message-new-request"
+              }
+            },
+            "application/url-encoded": {
+              "schema": {
+                "$ref": "#/components/schemas/message-new-request"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/message-new-request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}/{flowID}": {
+      "post": {
+        "summary": "Send a message flow",
+        "description": "If the flow has certain parameters, you can specify by referencing the key. For example, if the template is `Hello {name}!`, you can enter the following request body `{ \"parameters\": { \"name\": \"Jeff\" }  }`, which would yield the following message `Hello Jeff!`. Do note that {recipient} is a special parameter. If randomizeMessage is set to true, it will replace {recipient} with the person's WA name",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat to send the message to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "flowID",
+            "in": "path",
+            "description": "The flow ID to send",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameters": {
+                    "type": "object"
+                  },
+                  "randomizeMessage": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "application/url-encoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameters": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/messages-response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}/all-pending": {
+      "delete": {
+        "summary": "Deletes all pending messages for the given chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose pending messages to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}/{messageID}": {
+      "delete": {
+        "summary": "Delete a given message that was sent by you in a chat. Can also be used to cancel/stop a scheduled message",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "ID of the message to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Reschedules a scheduled message",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "ID of the message",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scheduleAt",
+            "in": "query",
+            "description": "New time for the scheduled message to be sent. Provide a unix timestamp in seconds here",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}/{messageID}/forward": {
+      "post": {
+        "summary": "Forwards the given message of a chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose message you want to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "Message ID to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jids",
+            "in": "query",
+            "description": "chat IDs to forward this message to (max 10 at a time)",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK -- is redirected to actual media url via a 302",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "object",
+                      "description": "If there were errors, this object will be there"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/messages/{jid}/{messageID}/media": {
+      "get": {
+        "summary": "Get the messages of a given chat",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose message you want to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageID",
+            "in": "path",
+            "description": "Message ID to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK -- is redirected to actual media url via a 302",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/notes/{jid}": {
+      "post": {
+        "summary": "Creates a new note",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID to add the note to",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/notes/{jid}/{noteId}": {
+      "patch": {
+        "summary": "Edit an existing note",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose note you want to edit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "noteId",
+            "in": "path",
+            "description": "ID of note to edit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "description": "New text for the note",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete an existing note",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The chat ID whose note you want to edit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "noteId",
+            "in": "path",
+            "description": "ID of note to edit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/message-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups": {
+      "post": {
+        "summary": "Create a new group",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "participants"
+                ],
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "description": "The subject of the group"
+                  },
+                  "participants": {
+                    "type": "array",
+                    "description": "The participants to add. Format is `{phoneNumber}@s.whatsapp.net`",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-metadata-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups/{jid}": {
+      "get": {
+        "summary": "Get the metadata of a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-metadata-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Leave a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The group to leave",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups/{jid}/invite-code": {
+      "get": {
+        "summary": "Get the invite code of a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups/{jid}/add": {
+      "put": {
+        "summary": "Add participants to a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The group to modify",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participants",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-modification-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/group/{jid}/remove": {
+      "delete": {
+        "summary": "Remove participants from a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The group to modify",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participants",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-modification-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups/{jid}/promote": {
+      "patch": {
+        "summary": "Promote the given participants in a group (make admin)",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The group to modify",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participants",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-modification-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/groups/{jid}/demote": {
+      "patch": {
+        "summary": "Demote the given participants in a group",
+        "parameters": [
+          {
+            "name": "jid",
+            "in": "path",
+            "description": "The group to modify",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "participants",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/group-modification-model"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          },
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "state": {
+        "type": "object",
+        "required": [
+          "connections",
+          "canLogin",
+          "user"
+        ],
+        "properties": {
+          "connections": {
+            "type": "object",
+            "properties": {
+              "phone": {
+                "type": "boolean",
+                "description": "Whether the phone is connected"
+              },
+              "waWeb": {
+                "type": "string",
+                "description": "What is the status of the WA connection -- will be one of open/close/connecting"
+              }
+            }
+          },
+          "canLogin": {
+            "type": "boolean",
+            "description": "Are the credentials present for you to log in"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "WhatsApp ID of the user"
+              },
+              "name": {
+                "type": "string"
+              },
+              "imgUrl": {
+                "type": "string"
+              }
+            },
+            "description": "Properties of the user"
+          },
+          "pendingQR": {
+            "type": "string"
+          }
+        }
+      },
+      "chat-model": {
+        "type": "object",
+        "required": [
+          "jid",
+          "t",
+          "count",
+          "messages"
+        ],
+        "properties": {
+          "jid": {
+            "type": "string",
+            "description": "the chat ID"
+          },
+          "t": {
+            "type": "number",
+            "description": "last time the chat was updated"
+          },
+          "name": {
+            "type": "string",
+            "description": "title of the chat"
+          },
+          "imgUrl": {
+            "type": "string",
+            "description": "the WA url of the chat"
+          },
+          "count": {
+            "type": "number",
+            "description": "number of unread messages, is < 0 if the chat is manually marked unread"
+          },
+          "archive": {
+            "type": "string",
+            "description": "is \"true\"/\"false\""
+          },
+          "read_only": {
+            "type": "string",
+            "description": "is \"true\"/\"false\""
+          },
+          "mute": {
+            "type": "string",
+            "description": "if this value is set, then the chat is muted"
+          },
+          "messages": {
+            "type": "object",
+            "properties": {},
+            "description": "the last few messages in the chat"
+          }
+        }
+      },
+      "chats-response": {
+        "type": "object",
+        "required": [
+          "chats"
+        ],
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "The cursor that can be used to obtain the next page of chats. Is undefined for the last page"
+          },
+          "chats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/chat-model"
+            }
+          }
+        }
+      },
+      "file-content-model": {
+        "description": "A file to upload/copy from another url",
+        "oneOf": [
+          {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "http url of the media"
+              },
+              "mimetype": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string",
+                "description": "name of the file"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "format": "binary"
+          }
+        ]
+      },
+      "message-direct-options": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The text of the message"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "degreesLongitude": {
+                "type": "number"
+              },
+              "degreesLatitude": {
+                "type": "number"
+              }
+            }
+          },
+          "image": {
+            "$ref": "#/components/schemas/file-content-model"
+          },
+          "video": {
+            "$ref": "#/components/schemas/file-content-model"
+          },
+          "audio": {
+            "$ref": "#/components/schemas/file-content-model"
+          },
+          "sticker": {
+            "$ref": "#/components/schemas/file-content-model"
+          },
+          "document": {
+            "$ref": "#/components/schemas/file-content-model"
+          }
+        }
+      },
+      "message-flow-create-options": {
+        "allOf": [
+          {
+            "required": [
+              "name"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/message-flow-edit-options"
+          }
+        ]
+      },
+      "message-flow-edit-options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/message-direct-options"
+          }
+        ]
+      },
+      "message-flow-options": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the flow"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/message-flow-create-options"
+          }
+        ]
+      },
+      "message-send-options": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/message-direct-options"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "quotedID": {
+                "type": "string",
+                "description": "Optionally, ID of the message to quote"
+              },
+              "scheduleAt": {
+                "type": "number",
+                "description": "Optionally, schedule the message for a later time. Provide a unix timestamp in seconds here. A scheduled message will automatically retry if failed."
+              },
+              "tag": {
+                "type": "string",
+                "description": "Optionally, a tag to attach to the message"
+              },
+              "sendTyping": {
+                "type": "boolean",
+                "description": "Optionally, adds in a typing indicator before sending amessage"
+              },
+              "randomizeMessage": {
+                "type": "boolean",
+                "description": "Optionally, randomizes the message before sending"
+              }
+            }
+          }
+        ]
+      },
+      "message-new-request": {
+        "type": "object",
+        "required": [
+          "jid",
+          "type"
+        ],
+        "allOf": [
+          {
+            "properties": {
+              "jid": {
+                "type": "string",
+                "description": "The chat ID to send the messages to"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/message-send-options"
+          }
+        ]
+      },
+      "message-model": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "object",
+            "properties": {
+              "remoteJid": {
+                "type": "string",
+                "description": "the chat ID"
+              },
+              "id": {
+                "type": "string",
+                "description": "the unique ID of the message"
+              },
+              "fromMe": {
+                "type": "boolean"
+              },
+              "participant": {
+                "type": "string",
+                "description": "the participant that sent the message (only valid for groups)"
+              }
+            },
+            "description": "the unique key for the message"
+          },
+          "message": {
+            "type": "object",
+            "properties": {},
+            "description": "the message object"
+          },
+          "messageStubType": {
+            "type": "number",
+            "description": "if this is set, then the message is a system generated message"
+          },
+          "messageStubParameters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scheduled": {
+            "type": "boolean",
+            "description": "whether this is a scheduled message or not"
+          },
+          "note": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "messages-response": {
+        "type": "object",
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "The cursor that can be used to obtain the next page of messages. Is undefined for the last page"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/message-model"
+            }
+          }
+        }
+      },
+      "group-metadata-model": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "the group ID"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "description of the group"
+          },
+          "owner": {
+            "type": "string",
+            "description": "ID of the group creator"
+          },
+          "restrict": {
+            "type": "string",
+            "description": "is set when the group only allows admins to change group settings"
+          },
+          "announce": {
+            "type": "string",
+            "description": "is set when the group only allows admins to write messages"
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "name of the participant"
+                },
+                "isAdmin": {
+                  "type": "boolean"
+                },
+                "isSuperAdmin": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "group-modification-model": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "description": "if the request ended correctly, ignore"
+          },
+          "participants": {
+            "type": "object",
+            "description": "maps the affected participant IDs to a status code.",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "access_token": {
+        "type": "apiKey",
+        "description": "xman 3.0 JWT token",
+        "name": "access_token",
+        "in": "query"
+      },
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

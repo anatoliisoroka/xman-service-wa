@@ -1,0 +1,11 @@
+lib
+node_modules
+.DS_Store
+.env
+certs
+src/Tests/index.html
+tmp
+
+Docker*
+.env.prod
+MSearch
